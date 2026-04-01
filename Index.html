@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JAMB Physics Practice — 2025</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #04080f;
+    --surface: #080e1a;
+    --panel: #0c1424;
+    --border: #1a2a44;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --correct: #00ff9d;
+    --wrong: #ff3d6b;
+    --text: #c8ddf5;
+    --muted: #4a6080;
+    --grid: #0f1e32;
+    --glow: rgba(0,212,255,0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Ambient glow orb */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70vw;
+    height: 60vh;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 2.5rem 0 2rem;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.3);
+    padding: 0.3rem 0.9rem;
+    border-radius: 2px;
+    margin-bottom: 1.2rem;
+    background: rgba(0,212,255,0.05);
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    text-shadow: 0 0 40px rgba(0,212,255,0.4);
+  }
+
+  .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat {
+    background: var(--panel);
+    padding: 1rem;
+    text-align: center;
+    transition: background 0.2s;
+  }
+
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #fff;
+    display: block;
+  }
+
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  #stat-correct .stat-value { color: var(--correct); }
+  #stat-wrong .stat-value { color: var(--wrong); }
+  #stat-score .stat-value { color: var(--accent); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    margin-bottom: 2rem;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #007bff);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  /* ── QUESTION CARD ── */
+  #quiz-area { display: block; }
+  #results-area { display: none; }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .q-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    padding: 0.3rem 0.6rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    margin-top: 0.1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .q-topic {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.35rem;
+  }
+
+  .q-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #ddeeff;
+    font-weight: 400;
+  }
+
+  /* ── OPTIONS ── */
+  .options {
+    display: grid;
+    gap: 0.65rem;
+    margin-bottom: 1.6rem;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 40%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .option:hover:not(.disabled)::before { opacity: 0.04; }
+  .option:hover:not(.disabled) {
+    border-color: rgba(0,212,255,0.35);
+    transform: translateX(3px);
+  }
+
+  .option-letter {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.2rem 0.45rem;
+    margin-top: 0.05rem;
+    flex-shrink: 0;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+
+  .option-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  /* States */
+  .option.selected { border-color: var(--accent); background: rgba(0,212,255,0.06); }
+  .option.selected .option-letter { color: var(--accent); border-color: var(--accent); }
+
+  .option.correct { border-color: var(--correct); background: rgba(0,255,157,0.07); }
+  .option.correct .option-letter { color: var(--correct); border-color: var(--correct); }
+  .option.correct .option-text { color: var(--correct); }
+
+  .option.wrong { border-color: var(--wrong); background: rgba(255,61,107,0.07); }
+  .option.wrong .option-letter { color: var(--wrong); border-color: var(--wrong); }
+  .option.wrong .option-text { color: var(--wrong); }
+
+  .option.dim { opacity: 0.4; }
+  .option.disabled { cursor: default; transform: none !important; }
+
+  /* ── EXPLANATION ── */
+  .explanation {
+    display: none;
+    background: rgba(0,212,255,0.04);
+    border-left: 3px solid var(--accent);
+    padding: 0.9rem 1.1rem;
+    border-radius: 0 5px 5px 0;
+    margin-bottom: 1.6rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text);
+    font-style: italic;
+  }
+
+  .explanation.show { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+  }
+
+  .btn-next {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,212,255,0.06);
+    margin-left: auto;
+  }
+
+  .btn-next:hover { background: rgba(0,212,255,0.14); box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+
+  .btn-submit {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255,107,53,0.06);
+    width: 100%;
+  }
+
+  .btn-submit:hover { background: rgba(255,107,53,0.14); box-shadow: 0 0 20px rgba(255,107,53,0.2); }
+
+  .btn-retake {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,212,255,0.06);
+  }
+
+  .btn-retake:hover { background: rgba(0,212,255,0.14); }
+
+  .btn-key {
+    border-color: var(--border);
+    color: var(--muted);
+  }
+
+  .btn-key:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-key.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.06); }
+
+  /* ── ANSWER KEY PANEL ── */
+  #answer-key {
+    display: none;
+    margin-top: 1.5rem;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  #answer-key.show { display: block; animation: fadeIn 0.3s ease; }
+
+  .ak-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.1rem;
+    background: rgba(0,212,255,0.05);
+    border-bottom: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .ak-body { padding: 1rem 1.1rem; }
+
+  .ak-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .ak-row:last-child { border-bottom: none; }
+
+  .ak-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    width: 2.5rem;
+    flex-shrink: 0;
+    padding-top: 0.05rem;
+  }
+
+  .ak-ans {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--correct);
+    border: 1px solid rgba(0,255,157,0.3);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  .ak-text { color: var(--text); }
+
+  /* ── RESULTS ── */
+  .results-card {
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .results-card::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 80%;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .score-ring {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1.5rem;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle { fill: none; stroke-width: 8; }
+  .ring-bg { stroke: var(--border); }
+  .ring-fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); stroke-dasharray: 377; stroke-dashoffset: 377; filter: drop-shadow(0 0 8px var(--accent)); }
+
+  .score-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-pct {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .score-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .grade-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+  }
+
+  .grade-msg {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-style: italic;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .res-stat {
+    background: var(--surface);
+    padding: 1rem;
+  }
+
+  .res-stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: block;
+  }
+
+  .res-stat-lbl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  .results-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+  /* ── REVIEW LIST ── */
+  #review-list { margin-top: 2rem; }
+
+  .review-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.1rem 1.2rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+  }
+
+  .review-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    margin-bottom: 0.6rem;
+  }
+
+  .review-status.correct { color: var(--correct); background: rgba(0,255,157,0.08); border: 1px solid rgba(0,255,157,0.2); }
+  .review-status.wrong { color: var(--wrong); background: rgba(255,61,107,0.08); border: 1px solid rgba(255,61,107,0.2); }
+  .review-status.skipped { color: var(--muted); background: rgba(255,255,255,0.03); border: 1px solid var(--border); }
+
+  .review-q { font-size: 0.9rem; line-height: 1.5; color: #ddeeff; margin-bottom: 0.5rem; }
+
+  .review-ans {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .review-ans span { color: var(--correct); }
+  .review-ans .your-wrong { color: var(--wrong); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge">JAMB Prep · 2025</div>
+    <h1>Physics Practice<br>Questions</h1>
+    <p class="subtitle">30 exam-style questions · 10 topics · 4 options each</p>
+  </header>
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat" id="stat-progress">
+      <span class="stat-value" id="val-progress">0 / 30</span>
+      <span class="stat-label">Progress</span>
+    </div>
+    <div class="stat" id="stat-correct">
+      <span class="stat-value" id="val-correct">0</span>
+      <span class="stat-label">Correct</span>
+    </div>
+    <div class="stat" id="stat-wrong">
+      <span class="stat-value" id="val-wrong">0</span>
+      <span class="stat-label">Wrong</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span>Progress</span>
+      <span id="pct-label">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- QUIZ AREA -->
+  <div id="quiz-area">
+    <div class="q-header">
+      <span class="q-number" id="q-number">Q 01 / 30</span>
+      <div>
+        <div class="q-topic" id="q-topic"></div>
+        <div class="q-text" id="q-text"></div>
+      </div>
+    </div>
+
+    <div class="options" id="options"></div>
+    <div class="explanation" id="explanation"></div>
+
+    <div class="controls">
+      <button class="btn btn-key" id="key-btn" onclick="toggleKey()">☰ Answer Key</button>
+      <button class="btn btn-next" id="next-btn" onclick="nextQuestion()">Next →</button>
+    </div>
+    <div style="margin-top: 1rem;">
+      <button class="btn btn-submit" onclick="submitQuiz()">⬡ Submit Quiz</button>
+    </div>
+
+    <div id="answer-key">
+      <div class="ak-header">
+        <span>Answer Key</span>
+        <span id="ak-answered">Answered: 0 of 30</span>
+      </div>
+      <div class="ak-body" id="ak-body"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS AREA -->
+  <div id="results-area">
+    <div class="results-card">
+      <div class="score-ring">
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <circle class="ring-bg" cx="70" cy="70" r="60"/>
+          <circle class="ring-fill" id="ring-fill" cx="70" cy="70" r="60"/>
+        </svg>
+        <div class="score-label">
+          <span class="score-pct" id="res-pct">0%</span>
+          <span class="score-sub">Score</span>
+        </div>
+      </div>
+
+      <div class="grade-badge" id="res-grade"></div>
+      <div class="grade-msg" id="res-msg"></div>
+
+      <div class="results-grid">
+        <div class="res-stat">
+          <span class="res-stat-val" id="res-correct" style="color:var(--correct)">0</span>
+          <span class="res-stat-lbl">Correct</span>
+        </div>
+        <div class="res-stat">
+          <span class="res-stat-val" id="res-wrong" style="color:var(--wrong)">0</span>
+          <span class="res-stat-lbl">Wrong</span>
+        </div>
+        <div class="res-stat">
+          <span class="res-stat-val" id="res-skipped" style="color:var(--muted)">0</span>
+          <span class="res-stat-lbl">Skipped</span>
+        </div>
+      </div>
+
+      <div class="results-btns">
+        <button class="btn btn-retake" onclick="retakeQuiz()">↺ Retake Quiz</button>
+        <button class="btn btn-key" id="review-btn" onclick="toggleReview()">☰ Review Answers</button>
+      </div>
+    </div>
+
+    <div id="review-list" style="display:none;"></div>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+const questions = [
+  // 1. Mechanics
+  { topic: "Mechanics", text: "A body is thrown vertically upward with an initial velocity of 20 m/s. What is the maximum height reached? (g = 10 m/s²)", options: ["10 m", "20 m", "40 m", "80 m"], answer: 1, explanation: "Using v² = u² - 2gh at max height (v=0): h = u²/2g = 400/20 = 20 m." },
+  { topic: "Mechanics", text: "A car of mass 1000 kg accelerates from rest to 20 m/s in 10 s. What is the net force acting on it?", options: ["200 N", "1000 N", "2000 N", "20000 N"], answer: 2, explanation: "F = ma = 1000 × (20/10) = 1000 × 2 = 2000 N." },
+  { topic: "Mechanics", text: "Which of the following is a scalar quantity?", options: ["Velocity", "Force", "Speed", "Acceleration"], answer: 2, explanation: "Speed has only magnitude (no direction), making it a scalar. Velocity, force, and acceleration are vectors." },
+
+  // 2. Waves
+  { topic: "Waves & Sound", text: "A wave has a frequency of 500 Hz and a wavelength of 0.68 m. What is its speed?", options: ["340 m/s", "500 m/s", "680 m/s", "250 m/s"], answer: 0, explanation: "v = fλ = 500 × 0.68 = 340 m/s — the speed of sound in air at room temperature." },
+  { topic: "Waves & Sound", text: "Which property of a wave determines its pitch?", options: ["Amplitude", "Wavelength", "Frequency", "Speed"], answer: 2, explanation: "Pitch is determined by frequency. Higher frequency → higher pitch." },
+  { topic: "Waves & Sound", text: "What phenomenon occurs when two waves of the same frequency travelling in opposite directions combine?", options: ["Diffraction", "Refraction", "Standing wave", "Doppler effect"], answer: 2, explanation: "When two equal waves travel in opposite directions they superimpose to form a standing (stationary) wave." },
+
+  // 3. Light & Optics
+  { topic: "Light & Optics", text: "A concave mirror has a focal length of 10 cm. An object is placed 30 cm from the mirror. Where is the image formed?", options: ["15 cm", "20 cm", "30 cm", "60 cm"], answer: 0, explanation: "1/v + 1/u = 1/f → 1/v = 1/10 - 1/30 = 2/30 → v = 15 cm." },
+  { topic: "Light & Optics", text: "Total internal reflection occurs when light travels from a medium of:", options: ["Lower to higher refractive index beyond the critical angle", "Higher to lower refractive index beyond the critical angle", "Any medium at 90°", "Lower to higher at the critical angle"], answer: 1, explanation: "TIR happens only when light goes from denser (higher n) to less dense (lower n) medium at an angle ≥ critical angle." },
+  { topic: "Light & Optics", text: "Which colour of light has the highest frequency?", options: ["Red", "Yellow", "Green", "Violet"], answer: 3, explanation: "In the visible spectrum, violet light has the shortest wavelength and therefore the highest frequency." },
+
+  // 4. Electricity
+  { topic: "Electricity", text: "Three resistors of 2 Ω, 3 Ω and 6 Ω are connected in parallel. What is the combined resistance?", options: ["1 Ω", "2 Ω", "4 Ω", "11 Ω"], answer: 0, explanation: "1/R = 1/2 + 1/3 + 1/6 = 3/6 + 2/6 + 1/6 = 6/6 = 1, so R = 1 Ω." },
+  { topic: "Electricity", text: "A 60 W bulb operates at 240 V. What current flows through it?", options: ["0.25 A", "0.5 A", "1.0 A", "4.0 A"], answer: 0, explanation: "I = P/V = 60/240 = 0.25 A." },
+  { topic: "Electricity", text: "Ohm's law states that, at constant temperature, current is proportional to:", options: ["Resistance", "Power", "Voltage", "Charge"], answer: 2, explanation: "V = IR → I ∝ V at constant R and temperature. This is the statement of Ohm's law." },
+
+  // 5. Electromagnetism
+  { topic: "Electromagnetism", text: "Fleming's left-hand rule is used to find the direction of:", options: ["Induced EMF", "Magnetic field", "Force on a current-carrying conductor", "Electric field"], answer: 2, explanation: "Fleming's left-hand rule gives the direction of force on a current-carrying conductor in a magnetic field (motor effect)." },
+  { topic: "Electromagnetism", text: "An AC generator converts:", options: ["Electrical energy to mechanical energy", "Mechanical energy to electrical energy", "DC to AC", "Magnetic energy to heat"], answer: 1, explanation: "A generator (dynamo) converts mechanical energy (rotation) into electrical energy by electromagnetic induction." },
+  { topic: "Electromagnetism", text: "The unit of magnetic flux density is:", options: ["Weber", "Tesla", "Henry", "Farad"], answer: 1, explanation: "Magnetic flux density (B) is measured in Teslas (T). Weber is the unit of magnetic flux (Φ = BA)." },
+
+  // 6. Heat & Thermodynamics
+  { topic: "Heat & Thermodynamics", text: "0 °C is equivalent to what temperature on the Kelvin scale?", options: ["0 K", "100 K", "273 K", "373 K"], answer: 2, explanation: "K = °C + 273. Therefore 0 °C = 273 K." },
+  { topic: "Heat & Thermodynamics", text: "Which mode of heat transfer can occur through a vacuum?", options: ["Conduction", "Convection", "Radiation", "Both conduction and convection"], answer: 2, explanation: "Radiation (electromagnetic waves) is the only mode of heat transfer that does not require a medium, so it works through a vacuum." },
+  { topic: "Heat & Thermodynamics", text: "Charles's Law states that, at constant pressure, the volume of a gas is:", options: ["Inversely proportional to temperature", "Directly proportional to temperature (in Kelvin)", "Independent of temperature", "Directly proportional to pressure"], answer: 1, explanation: "Charles's Law: V ∝ T (Kelvin) at constant pressure — V₁/T₁ = V₂/T₂." },
+
+  // 7. Modern Physics / Atomic
+  { topic: "Atomic & Nuclear Physics", text: "The nucleus of an atom consists of:", options: ["Electrons and protons", "Protons and neutrons", "Neutrons and electrons", "Protons only"], answer: 1, explanation: "The nucleus contains protons (positively charged) and neutrons (no charge). Electrons orbit the nucleus." },
+  { topic: "Atomic & Nuclear Physics", text: "Which radiation is stopped by a thin sheet of paper?", options: ["Alpha (α)", "Beta (β)", "Gamma (γ)", "X-ray"], answer: 0, explanation: "Alpha particles have large mass and charge, so they are easily absorbed by a few centimetres of air or a sheet of paper." },
+  { topic: "Atomic & Nuclear Physics", text: "In nuclear fission, a heavy nucleus splits into:", options: ["Alpha particles only", "Lighter nuclei and energy", "Protons and electrons", "Gamma rays only"], answer: 1, explanation: "Nuclear fission splits a heavy nucleus (e.g. U-235) into two or more lighter nuclei, neutrons, and a large amount of energy." },
+
+  // 8. Motion & Newton's Laws
+  { topic: "Motion & Newton's Laws", text: "Newton's third law states that for every action there is:", options: ["A greater reaction", "An equal and opposite reaction", "A proportional reaction", "No reaction in a vacuum"], answer: 1, explanation: "Newton's 3rd law: every action has an equal and opposite reaction — forces always occur in pairs." },
+  { topic: "Motion & Newton's Laws", text: "A body moving in a circle at constant speed has:", options: ["Zero acceleration", "Centripetal acceleration", "Tangential acceleration", "Constant velocity"], answer: 1, explanation: "Even at constant speed, the direction changes, producing a centripetal acceleration directed toward the centre of the circle." },
+  { topic: "Motion & Newton's Laws", text: "A 5 kg object falls freely from rest for 2 s. What distance does it cover? (g = 10 m/s²)", options: ["5 m", "10 m", "20 m", "50 m"], answer: 2, explanation: "s = ½gt² = ½ × 10 × 4 = 20 m." },
+
+  // 9. Energy & Work
+  { topic: "Energy, Work & Power", text: "A machine lifts a 200 N load through 5 m in 10 s. What is the power output?", options: ["10 W", "100 W", "200 W", "1000 W"], answer: 1, explanation: "Work = Force × distance = 200 × 5 = 1000 J. Power = W/t = 1000/10 = 100 W." },
+  { topic: "Energy, Work & Power", text: "The kinetic energy of a 2 kg object moving at 4 m/s is:", options: ["8 J", "16 J", "32 J", "64 J"], answer: 1, explanation: "KE = ½mv² = ½ × 2 × 16 = 16 J." },
+  { topic: "Energy, Work & Power", text: "The law of conservation of energy states that energy:", options: ["Can be created but not destroyed", "Can be destroyed but not created", "Can neither be created nor destroyed", "Changes form and quantity simultaneously"], answer: 2, explanation: "Energy is conserved — it cannot be created or destroyed, only converted from one form to another." },
+
+  // 10. Pressure & Fluids
+  { topic: "Pressure & Fluids", text: "Pressure in a liquid at depth h is given by P = hρg. If h = 4 m, ρ = 1000 kg/m³ and g = 10 m/s², what is the pressure?", options: ["400 Pa", "4000 Pa", "40000 Pa", "400000 Pa"], answer: 2, explanation: "P = hρg = 4 × 1000 × 10 = 40,000 Pa." },
+  { topic: "Pressure & Fluids", text: "Archimedes' principle states that an object immersed in a fluid experiences an upthrust equal to:", options: ["The weight of the object", "The volume of the fluid displaced", "The weight of the fluid displaced", "The density of the fluid"], answer: 2, explanation: "The buoyant force (upthrust) equals the weight of the fluid that the object displaces." },
+  { topic: "Pressure & Fluids", text: "Bernoulli's principle relates to:", options: ["Pressure and temperature of a gas", "Pressure and velocity in fluid flow", "Viscosity and density", "Buoyancy and weight"], answer: 1, explanation: "Bernoulli's principle: where fluid speed is high, pressure is low, and vice versa — linking pressure and velocity in flowing fluids." },
+  { topic: "Pressure & Fluids", text: "Which of the following has the highest pressure exerted on the ground?", options: ["A 100 kg man standing on both feet (area 0.05 m²)", "A 60 kg woman wearing stilettos (area 0.001 m²)", "A 500 kg car (area 0.1 m²)", "A 1000 kg elephant (area 0.4 m²)"], answer: 1, explanation: "P = F/A. For the woman: P = 60×10/0.001 = 600,000 Pa — far exceeding the others." },
+];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+let revealed = new Array(questions.length).fill(false);
+let keyVisible = false;
+let reviewVisible = false;
+
+function render() {
+  const q = questions[current];
+  document.getElementById('q-number').textContent = `Q ${String(current+1).padStart(2,'0')} / ${questions.length}`;
+  document.getElementById('q-topic').textContent = q.topic;
+  document.getElementById('q-text').textContent = q.text;
+
+  const optBox = document.getElementById('options');
+  optBox.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span class="option-text">${opt}</span>`;
+
+    if (revealed[current]) {
+      btn.classList.add('disabled');
+      if (i === q.answer) btn.classList.add('correct');
+      else if (i === answers[current] && answers[current] !== q.answer) btn.classList.add('wrong');
+      else btn.classList.add('dim');
+    } else {
+      if (answers[current] === i) btn.classList.add('selected');
+      btn.onclick = () => selectAnswer(i);
+    }
+    optBox.appendChild(btn);
+  });
+
+  const exp = document.getElementById('explanation');
+  if (revealed[current]) {
+    exp.textContent = q.explanation;
+    exp.classList.add('show');
+  } else {
+    exp.textContent = '';
+    exp.classList.remove('show');
+  }
+
+  updateStats();
+  updateKey();
+}
+
+function selectAnswer(i) {
+  if (revealed[current]) return;
+  answers[current] = i;
+  revealed[current] = true;
+  render();
+}
+
+function nextQuestion() {
+  if (current < questions.length - 1) {
+    current++;
+    render();
+  }
+}
+
+function updateStats() {
+  let correct = 0, wrong = 0;
+  answers.forEach((a, i) => {
+    if (a !== null) {
+      if (a === questions[i].answer) correct++;
+      else wrong++;
+    }
+  });
+  const done = answers.filter(a => a !== null).length;
+  document.getElementById('val-progress').textContent = `${done} / ${questions.length}`;
+  document.getElementById('val-correct').textContent = correct;
+  document.getElementById('val-wrong').textContent = wrong;
+
+  const pct = Math.round(done / questions.length * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('pct-label').textContent = pct + '%';
+}
+
+function toggleKey() {
+  keyVisible = !keyVisible;
+  document.getElementById('answer-key').classList.toggle('show', keyVisible);
+  document.getElementById('key-btn').classList.toggle('active', keyVisible);
+  updateKey();
+}
+
+function updateKey() {
+  const done = answers.filter(a => a !== null).length;
+  document.getElementById('ak-answered').textContent = `Answered: ${done} of ${questions.length}`;
+
+  const body = document.getElementById('ak-body');
+  const letters = ['A','B','C','D'];
+  body.innerHTML = '';
+  questions.forEach((q, i) => {
+    const row = document.createElement('div');
+    row.className = 'ak-row';
+    const userPick = answers[i] !== null ? `Your pick: <span class="${answers[i] === q.answer ? '' : 'your-wrong'}">${letters[answers[i]]}</span>` : 'Not answered';
+    row.innerHTML = `
+      <span class="ak-num">Q${String(i+1).padStart(2,'0')}</span>
+      <span class="ak-ans">${letters[q.answer]}</span>
+      <span class="ak-text">${q.options[q.answer]} — ${userPick}</span>
+    `;
+    body.appendChild(row);
+  });
+}
+
+function submitQuiz() {
+  // reveal all unanswered
+  revealed = revealed.map(() => true);
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('results-area').style.display = 'block';
+
+  let correct = 0, skipped = 0;
+  answers.forEach((a, i) => {
+    if (a === null) skipped++;
+    else if (a === questions[i].answer) correct++;
+  });
+  const wrong = questions.length - correct - skipped;
+  const pct = Math.round(correct / questions.length * 100);
+
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-skipped').textContent = skipped;
+
+  // ring animation
+  const circumference = 377;
+  const offset = circumference - (pct / 100 * circumference);
+  setTimeout(() => {
+    document.getElementById('ring-fill').style.strokeDashoffset = offset;
+    if (pct < 50) document.getElementById('ring-fill').style.stroke = 'var(--wrong)';
+    else if (pct < 70) document.getElementById('ring-fill').style.stroke = 'var(--accent2)';
+    else document.getElementById('ring-fill').style.stroke = 'var(--correct)';
+  }, 100);
+
+  let grade, msg;
+  if (pct >= 80) { grade = '⬡ Distinction'; msg = 'Exceptional performance! You are JAMB-ready.'; }
+  else if (pct >= 70) { grade = '⬡ Merit'; msg = 'Great work! Polish a few topics and you\'re set.'; }
+  else if (pct >= 50) { grade = '⬡ Pass'; msg = 'A decent foundation. Keep revising!'; }
+  else { grade = '⬡ Needs Work'; msg = 'Don\'t give up — review the topics and retake.'; }
+
+  document.getElementById('res-grade').textContent = grade;
+  document.getElementById('res-msg').textContent = msg;
+}
+
+function toggleReview() {
+  reviewVisible = !reviewVisible;
+  const list = document.getElementById('review-list');
+  list.style.display = reviewVisible ? 'block' : 'none';
+  if (reviewVisible) buildReview();
+  document.getElementById('review-btn').classList.toggle('active', reviewVisible);
+}
+
+function buildReview() {
+  const list = document.getElementById('review-list');
+  const letters = ['A','B','C','D'];
+  list.innerHTML = '';
+  questions.forEach((q, i) => {
+    const a = answers[i];
+    let statusClass = 'skipped', statusText = '— Skipped';
+    if (a !== null) {
+      if (a === q.answer) { statusClass = 'correct'; statusText = '✓ Correct'; }
+      else { statusClass = 'wrong'; statusText = '✗ Wrong'; }
+    }
+    const yourAns = a !== null ? `Your answer: <span class="${a === q.answer ? '' : 'your-wrong'}">${letters[a]}. ${q.options[a]}</span>` : 'Not answered';
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `
+      <div class="review-status ${statusClass}">${statusText}</div>
+      <div class="review-q"><strong>Q${i+1}.</strong> ${q.text}</div>
+      <div class="review-ans">
+        ${yourAns}<br>
+        Correct answer: <span>${letters[q.answer]}. ${q.options[q.answer]}</span><br>
+        <em style="color:var(--muted)">${q.explanation}</em>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function retakeQuiz() {
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  revealed = new Array(questions.length).fill(false);
+  keyVisible = false;
+  reviewVisible = false;
+  document.getElementById('results-area').style.display = 'none';
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('ring-fill').style.strokeDashoffset = 377;
+  document.getElementById('review-list').style.display = 'none';
+  document.getElementById('review-btn').classList.remove('active');
+  render();
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
